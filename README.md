@@ -26,7 +26,7 @@ Lab 色空間の各軸は次のとおりです。
 ## インストール
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/kanaya/dichromatic
 cd dichromatic
 pip install -r requirements.txt
 ```
