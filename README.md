@@ -5,7 +5,7 @@
 ## 処理内容
 
 1. 入力画像を **CIELAB** 色空間に変換する
-2. **`a*` を 0** にする（赤–緑の色差情報を捨てる）
+2. デフォルトでは **`a*` を 0** にする（赤–緑の色差情報を捨てる）。`--half-a` 指定時は **`a*` を半分**にする
 3. `--half-b` 指定時は **`b*` を半分**にする（青–黄の彩度を弱める）
 4. RGB 色空間に戻して書き出す
 
@@ -17,7 +17,7 @@ Lab 色空間の各軸は次のとおりです。
 | `a*` | 緑 (−) ↔ 赤 (+) |
 | `b*` | 青 (−) ↔ 黄 (+) |
 
-このプログラムは `L*` と `b*`（および `--half-b` 時は `b*`/2）を保持し、`a*` だけを除去します。RGBA 画像の場合、アルファチャンネルはそのまま保持されます。
+このプログラムは `L*` と `b*`（および `--half-b` 時は `b*`/2）を保持します。`a*` はデフォルトで 0 にし、`--half-a` 指定時は半分にします。RGBA 画像の場合、アルファチャンネルはそのまま保持されます。
 
 ## 必要条件
 
@@ -43,8 +43,14 @@ python dichromatic.py input.jpg
 # 出力先を指定
 python dichromatic.py input.jpg -o output.png
 
+# a* を半分にする（0 にはしない）
+python dichromatic.py input.jpg --half-a
+
 # b* を半分にする
 python dichromatic.py input.jpg --half-b
+
+# a* と b* の両方を半分にする
+python dichromatic.py input.jpg --half-a --half-b
 
 # HEIC / HEIF も読み込み可能
 python dichromatic.py photo.heic -o result.jpg --half-b
@@ -79,7 +85,7 @@ python dichromatic.py sample2.jpg
 ## オプション
 
 ```
-usage: dichromatic.py [-h] [-o OUTPUT] [--half-b] input
+usage: dichromatic.py [-h] [-o OUTPUT] [--half-a] [--half-b] input
 
 positional arguments:
   input                 入力画像のパス (JPEG, PNG, HEIF, HEIC など)
@@ -87,7 +93,8 @@ positional arguments:
 options:
   -h, --help            ヘルプを表示
   -o, --output OUTPUT   出力画像のパス (省略時: <name>_dichromatic.<ext>)
-  --half-b              a* を 0 にしたあと、b* を半分にする
+  --half-a              a* を 0 にせず、半分にする
+  --half-b              b* を半分にする
 ```
 
 ## 対応形式
