@@ -81,22 +81,24 @@ def _lab_to_rgb(lab: np.ndarray) -> np.ndarray:
     return np.clip(np.rint(rgb * 255), 0, 255).astype(np.uint8)
 
 
-def _drop_red_green_chroma(rgb: np.ndarray) -> np.ndarray:
-    """Convert to Lab, zero the a* (red-green) axis, and convert back to RGB."""
+def _transform_lab(rgb: np.ndarray, *, half_b: bool = False) -> np.ndarray:
+    """Convert to Lab, zero a*, optionally halve b*, and convert back to RGB."""
     lab = _rgb_to_lab(rgb.astype(np.float64))
     lab[..., 1] = 0.0
+    if half_b:
+        lab[..., 2] *= 0.5
     return _lab_to_rgb(lab)
 
 
-def dichromatic(image: Image.Image) -> Image.Image:
+def dichromatic(image: Image.Image, *, half_b: bool = False) -> Image.Image:
     """Remove red-green chroma while keeping lightness and blue-yellow chroma."""
     if image.mode == "RGBA":
         rgba = np.array(image, dtype=np.uint8)
-        rgb = _drop_red_green_chroma(rgba[..., :3])
+        rgb = _transform_lab(rgba[..., :3], half_b=half_b)
         return Image.fromarray(np.dstack((rgb, rgba[..., 3])), mode="RGBA")
 
     rgb = np.array(image.convert("RGB"), dtype=np.uint8)
-    return Image.fromarray(_drop_red_green_chroma(rgb), mode="RGB")
+    return Image.fromarray(_transform_lab(rgb, half_b=half_b), mode="RGB")
 
 
 def default_output_path(input_path: Path) -> Path:
@@ -118,6 +120,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         help="Output image path (default: <name>_dichromatic.<ext>)",
     )
+    parser.add_argument(
+        "--half-b",
+        action="store_true",
+        help="After zeroing a*, reduce b* (blue-yellow chroma) to half",
+    )
     return parser.parse_args(argv)
 
 
@@ -132,7 +139,7 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         with Image.open(input_path) as image:
-            result = dichromatic(image)
+            result = dichromatic(image, half_b=args.half_b)
             output_path.parent.mkdir(parents=True, exist_ok=True)
             result.save(output_path)
     except OSError as exc:
