@@ -50,6 +50,20 @@ python dichromatic.py input.jpg --half-b
 python dichromatic.py photo.heic -o result.jpg --half-b
 ```
 
+## 作例
+
+`sample1.jpg`（海と岩の風景）を変換した例です。
+
+| 入力 (`sample1.jpg`) | 出力 (`sample1_dichromatic.jpg`) |
+| :---: | :---: |
+| ![入力: sample1.jpg](sample1.jpg) | ![出力: sample1_dichromatic.jpg](sample1_dichromatic.jpg) |
+
+```bash
+python dichromatic.py sample1.jpg
+```
+
+`a*` を 0 にしたことで、岩の緑や赤みのある色味が抑えられます。明度（`L*`）と青–黄方向の色差（`b*`）は残るため、空や海の青さは保持されます。
+
 ## オプション
 
 ```
